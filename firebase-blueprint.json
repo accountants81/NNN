@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "PartReservation": {
+      "title": "Part Reservation",
+      "description": "Represents the status of a specific Quran part.",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["available", "reserved", "completed"] },
+        "userName": { "type": "string", "description": "The name of the person who reserved/completed it" },
+        "ownerId": { "type": "string", "description": "Local storage user ID for basic ownership" },
+        "readCount": { "type": "integer", "description": "Number of times this part has been completed" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["status", "updatedAt"]
+    },
+    "Stats": {
+      "title": "Stats",
+      "description": "Global application stats.",
+      "type": "object",
+      "properties": {
+        "count": { "type": "integer", "description": "Total completed khatmas" }
+      },
+      "required": ["count"]
+    }
+  },
+  "firestore": {
+    "/parts/{partId}": {
+      "schema": "PartReservation",
+      "description": "Collection of Quran parts and their current status."
+    },
+    "/stats/khatmas": {
+      "schema": "Stats",
+      "description": "Global count of completed Quran completions."
+    }
+  }
+}

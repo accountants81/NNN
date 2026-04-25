@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidPart(data) {
+      return data.status in ['available', 'reserved', 'completed'] &&
+             (!('userName' in data) || (data.userName is string && data.userName.size() <= 128)) &&
+             (!('ownerId' in data) || (data.ownerId is string && data.ownerId.size() <= 128)) &&
+             (!('readCount' in data) || (data.readCount is int && data.readCount >= 0));
+    }
+
+    match /parts/{partId} {
+      allow read: if true; 
+      allow create, update: if isValidId(partId) && isValidPart(incoming());
+    }
+
+    match /stats/khatmas {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}
